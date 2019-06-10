@@ -143,9 +143,15 @@ createPRNGList' prng n prev = nextVal:(createPRNGList' prng (n - 1) nextVal)
 createPRNGList :: (Int -> Int) -> Int -> [Int]
 createPRNGList prng n = createPRNGList' prng n 0
 
+createInfinitePRNG :: (Int -> Int) -> [Int]
+createInfinitePRNG prng = iterate prng 0
+
 createStreamOTP :: (Int -> Int) -> Int -> String
 createStreamOTP prng n = map toEnum $ createPRNGList prng n
 
+createInfiniteStreamOTP :: (Int -> Int) -> String
+createInfiniteStreamOTP prng = map toEnum $ createInfinitePRNG prng
+
 instance Cipher StreamPad where
-  encode (Stream prng) text = applyOTP (createStreamOTP prng (length text)) text
-  decode (Stream prng) text = applyOTP (createStreamOTP prng (length text)) text
+  encode (Stream prng) text = applyOTP (createInfiniteStreamOTP prng) text
+  decode (Stream prng) text = applyOTP (createInfiniteStreamOTP prng) text
